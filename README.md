@@ -66,10 +66,10 @@ This command will connect to remote host(s) and forwardthe command specified wit
 ## Extra Arguments
 
 
-### Multithreading ( -o, --output )
+### Multithreading ( -t, --threads )
 
 ```
-./swarm.py --ips ip_list.txt --cmd "uname -a" -o report
+./swarm.py --ips ip_list.txt --cmd "uname -a" --threads 20
 ```
 Change the default multithread limit ( Default: 4 ) to customize the speed.
 
