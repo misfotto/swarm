@@ -19,7 +19,7 @@ import pprint
 # Import for colored debug text
 from termcolor import colored
 
-version=1.0
+version=1.3
 
 # Defining the exception that will let us exit the thread
 # when test only the connection.
@@ -54,7 +54,8 @@ def ssh_conn(ip, cmd, threads):
         stdout.channel.recv_exit_status()
 
         # Reading output in ascii for the remote host
-        output = stdout.read().decode('ascii')
+        output = stdout.read().decode('utf-8')
+        error  = stderr.read().decode('utf-8')
         
         # If the --verbose ( -v ) option is specified then print
         # out to the terminal the remote output of the command.
@@ -63,7 +64,10 @@ def ssh_conn(ip, cmd, threads):
             # Format the output and prints it line by line.
             for line in output.split("\n"):
                 if line != "":
-                    print ( "> " + line  )
+                    print ( "STDOUT: " + line  )
+            for line in error.split("\n"):
+                if line != "":
+                    print ( "STDERR: " + line  )
             print ( "* {}: Verbose output end.\n".format(ip) )
 
         debug("* {}: Closing connection".format( ip ) )
@@ -76,13 +80,16 @@ def ssh_conn(ip, cmd, threads):
         print("* {}: User or password incorrect, Please try again!!!".format(ip))
         status = "ERROR"
         output = "ERROR: Authentication error."
+        error = True
     except OnlyConnection as e:
         status = "OK"
         output = "Connected"
+        error = False
     except Exception as e:
         print ( "* {}: {}".format(ip, str(e)) )
         status = "ERROR"
         output = "ERROR: {}".format(str(e))        
+        error = True
     finally:
         # If a command is not set just set the cmd variable
         # to a string just for report purpose.
@@ -98,6 +105,8 @@ def ssh_conn(ip, cmd, threads):
             outFile.close()
         
         debug("* Thread end {}".format(ip))
+    
+    return output, error
 
 def SSH_Thread(hosts, cmd, threads):
 
